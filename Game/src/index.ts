@@ -118,7 +118,6 @@ class ShooterScene extends Scene {
 
     gameOver() {
         this.isGameOver = true;
-
         this.bullets.getChildren().forEach((b: Bullet) => b.kill());
         this.meteors.getChildren().forEach((m: Meteor) => m.kill());
         this.spaceShip.kill();
@@ -127,6 +126,11 @@ class ShooterScene extends Scene {
         const text = this.add.text(this.game.canvas.width / 2, this.game.canvas.height / 2, "Game Over :-(", 
             { font: "65px Arial", fill: "#ff0044", align: "center" });
         text.setOrigin(0.5, 0.5);
+
+        //TODO: Enter Name
+        //TODO: POST to API this.points
+        //TODO: GET: List
+        //TODO: Display List
     }
 }
 
