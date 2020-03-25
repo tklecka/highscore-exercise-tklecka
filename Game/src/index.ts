@@ -23,6 +23,10 @@ class ShooterScene extends Scene {
     private isGameOver = false;
     private hits = 0;
 
+    private doHighscoreListBool = false;
+    private nameString = "";
+    private sentPost = false;
+
     preload() {
         // Preload images so that we can use them in our game
         this.load.image('space', 'images/deep-space.jpg');
@@ -35,11 +39,11 @@ class ShooterScene extends Scene {
         if (this.isGameOver) {
             return;
         }
-        
+
         //  Add a background
         this.add.tileSprite(0, 0, this.game.canvas.width, this.game.canvas.height, 'space').setOrigin(0, 0);
 
-        this.points = this.add.text(this.game.canvas.width * 0.1, this.game.canvas.height * 0.1, "0", 
+        this.points = this.add.text(this.game.canvas.width * 0.1, this.game.canvas.height * 0.1, "0",
             { font: "32px Arial", fill: "#ff0044", align: "left" });
 
         // Create bullets and meteors
@@ -123,15 +127,56 @@ class ShooterScene extends Scene {
         this.spaceShip.kill();
 
         // Display "game over" text
-        const text = this.add.text(this.game.canvas.width / 2, this.game.canvas.height / 2, "Game Over :-(", 
+        const text = this.add.text(this.game.canvas.width / 2, this.game.canvas.height / 2, "Game Over :-(",
             { font: "65px Arial", fill: "#ff0044", align: "center" });
         text.setOrigin(0.5, 0.5);
+        if (!this.doHighscoreListBool) {
+            this.doHighscoreListBool = true;
+            document.getElementById("nameform").innerHTML = '<form><label for="lname">Name:</label><input type="text" id="lname" name="lname"><input maxlength="3" type="submit" value="Submit"></form>'!;
+            this.doHighscoreList();
+        }
 
-        //TODO: Enter Name
-        //TODO: POST to API this.points
-        //TODO: GET: List
-        //TODO: Display List
     }
+
+    doHighscoreList() {
+        //<form><label for="lname">Name:</label><input type="text" id="lname" name="lname"><input type="submit" value="Submit"></form>
+        const form = document.querySelector('form')!;
+        form.onsubmit = (_) => {
+            const data = new FormData(form);
+            const name = data.get('lname') as string;
+            if (!this.sentPost) {
+                this.doPostScore(name, this.hits);
+            }
+            return false; // prevent reload
+        };
+    }
+
+    doPostScore(name: string, points: number) {
+        this.sentPost=true;
+        name=name.substr(0,3);
+        const phs: Highscore = {name: name, points: points};
+        const hslist: Highscore[] = [];
+        console.log(name + " - " + points);
+
+        //TODO: POST to API phs
+        //TODO: GET: List -> hslist
+
+        //Display List
+        let highscore = "List: ";
+        highscore += "<ul>";
+        hslist.push(phs);
+        hslist.forEach(element => {
+            highscore += "<li>"+element.name+"\t"+element.points+"</li>";
+        });
+        highscore+="</ul>";
+        document.getElementById("hslist").innerHTML = highscore;
+    }
+
+}
+
+interface Highscore{
+    name: string;
+    points: number;
 }
 
 const config = {
