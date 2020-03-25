@@ -1,6 +1,10 @@
 version: '3'
 services:
-  gateway:
+  backend:
     build: Backend/HighscoreBackend/HighscoreBackend/.
     ports:
       - "8085:80"
+  frontend:
+    build: Game/.
+    ports:
+      - "8084:80"
