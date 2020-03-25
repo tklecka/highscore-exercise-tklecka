@@ -132,16 +132,15 @@ class ShooterScene extends Scene {
         text.setOrigin(0.5, 0.5);
         if (!this.doHighscoreListBool) {
             this.doHighscoreListBool = true;
-            document.getElementById("nameform").innerHTML = '<form><label for="lname">Name:</label><input type="text" id="lname" name="lname"><input maxlength="3" type="submit" value="Submit"></form>'!;
+            document.getElementById("nameform").innerHTML = '<form><label for="lname">Name:</label><input type="text" id="lname" name="lname"><input maxlength="3" type="submit" value="Submit"></form>';
             this.doHighscoreList();
         }
 
     }
 
     doHighscoreList() {
-        //<form><label for="lname">Name:</label><input type="text" id="lname" name="lname"><input type="submit" value="Submit"></form>
-        const form = document.querySelector('form')!;
-        form.onsubmit = (_) => {
+        const form = document.querySelector('form');
+        form.onsubmit = () => {
             const data = new FormData(form);
             const name = data.get('lname') as string;
             if (!this.sentPost) {
@@ -152,29 +151,45 @@ class ShooterScene extends Scene {
     }
 
     doPostScore(name: string, points: number) {
-        this.sentPost=true;
-        name=name.substr(0,3);
-        const phs: Highscore = {name: name, points: points};
-        const hslist: Highscore[] = [];
-        console.log(name + " - " + points);
+        this.sentPost = true;
+        name = name.substr(0, 3);
 
-        //TODO: POST to API phs
-        //TODO: GET: List -> hslist
+        const highscoreEntry = { 'Initials': name, 'Score': points };
+        console.log(JSON.stringify(highscoreEntry));
 
-        //Display List
-        let highscore = "List: ";
-        highscore += "<ul>";
-        hslist.push(phs);
-        hslist.forEach(element => {
-            highscore += "<li>"+element.name+"\t"+element.points+"</li>";
+        const headers = new Headers();
+
+        headers.append('Accept', 'application/json'); // This one is enough for GET requests
+        headers.append('Content-Type', 'application/json'); // This one sends body
+
+        fetch('http://localhost:5000/api/addScore', {
+            method: 'POST',
+            mode: 'cors',
+            headers: headers,
+            body: JSON.stringify(highscoreEntry),
         });
-        highscore+="</ul>";
-        document.getElementById("hslist").innerHTML = highscore;
-    }
 
+        fetch('http://localhost:5000/api/highscore', {
+            method: 'GET',
+            mode: 'cors',
+            headers: headers
+        }).then((response) => {
+            response.json().then(highscores => {
+                let highscore = "List: ";
+                highscore += "<ul>";
+
+                for (const curH of highscores) {
+                    highscore += "<li>" + curH.initials + "\t" + curH.score + "</li>";
+                }
+
+                highscore += "</ul>";
+                document.getElementById("hslist").innerHTML = highscore;
+            });
+        });
+    }
 }
 
-interface Highscore{
+interface Highscore {
     name: string;
     points: number;
 }
