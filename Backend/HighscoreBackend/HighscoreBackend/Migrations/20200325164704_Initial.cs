@@ -11,7 +11,7 @@ namespace HighscoreBackend.Migrations
                 columns: table => new
                 {
                     HighscoreID = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                        .Annotation("Sqlite:Autoincrement", true),
                     Initials = table.Column<string>(nullable: false),
                     Score = table.Column<int>(nullable: false)
                 },

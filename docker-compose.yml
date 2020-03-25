@@ -1,0 +1,6 @@
+version: '3'
+services:
+  gateway:
+    build: Backend/HighscoreBackend/HighscoreBackend/.
+    ports:
+      - "8085:80"
