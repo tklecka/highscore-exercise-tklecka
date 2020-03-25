@@ -3,8 +3,8 @@ services:
   backend:
     build: Backend/HighscoreBackend/HighscoreBackend/.
     ports:
-      - "8085:80"
+      - "5000:5000"
   frontend:
     build: Game/.
     ports:
-      - "8084:80"
+      - "8085:80"
