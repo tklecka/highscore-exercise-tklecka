@@ -21,7 +21,7 @@ namespace HighscoreBackend
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<HighscoreDBContext>(options =>
-                options.UseSqlServer(Configuration["ConnectionStrings:DefaultConnection"]));
+                options.UseSqlite(Configuration["ConnectionStrings:DefaultConnection"]));
 
             services.AddControllers();
         }
