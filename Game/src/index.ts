@@ -167,23 +167,23 @@ class ShooterScene extends Scene {
             mode: 'cors',
             headers: headers,
             body: JSON.stringify(highscoreEntry),
-        });
-
-        fetch('http://localhost:5000/api/highscore', {
-            method: 'GET',
-            mode: 'cors',
-            headers: headers
-        }).then((response) => {
-            response.json().then(highscores => {
-                let highscore = "List: ";
-                highscore += "<ul>";
-
-                for (const curH of highscores) {
-                    highscore += "<li>" + curH.initials + "\t" + curH.score + "</li>";
-                }
-
-                highscore += "</ul>";
-                document.getElementById("hslist").innerHTML = highscore;
+        }).then((postres) => {
+            fetch('http://localhost:5000/api/highscore', {
+                method: 'GET',
+                mode: 'cors',
+                headers: headers
+            }).then((response) => {
+                response.json().then(highscores => {
+                    let highscore = "List: ";
+                    highscore += "<ul>";
+    
+                    for (const curH of highscores) {
+                        highscore += "<li>" + curH.initials + "\t" + curH.score + "</li>";
+                    }
+    
+                    highscore += "</ul>";
+                    document.getElementById("hslist").innerHTML = highscore;
+                });
             });
         });
     }
