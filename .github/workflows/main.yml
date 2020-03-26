@@ -19,13 +19,28 @@ jobs:
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
-
+      
     # Runs a set of commands using the runners shell
-    - name: Docker Login, Build and Push
+    - name: Docker Login
       run: |
         docker login --password ${{ secrets.DOCKER_PASSWORD }} --username ${{ secrets.DOCKER_USERNAME }}
+
+    # Runs a set of commands using the runners shell
+    - name: Docker Build and Push
+      run: |
         docker-compose build
+        
+    # Runs a set of commands using the runners shell
+    - name: Docker Push
+      run: |
         docker tag highscore-exercise-tklecka_frontend tklecka/highscore-exercise-tklecka_frontend:latest
         docker tag highscore-exercise-tklecka_backend tklecka/highscore-exercise-tklecka_backend:latest
         docker push tklecka/highscore-exercise-tklecka_backend:latest
         docker push tklecka/highscore-exercise-tklecka_frontend:latest
+        
+    - uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE }}
+    - name: Azure Login and Restart Web App 
+      run: |
+        az webapp restart --name highscore-exercise-tklecka --resource-group HTL-Perg-UE --subscription Azure für Bildungseinrichtungen
