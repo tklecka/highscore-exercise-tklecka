@@ -2,7 +2,9 @@
 using HighscoreBackend.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace HighscoreBackend.Controllers
@@ -12,6 +14,7 @@ namespace HighscoreBackend.Controllers
     public class PlayersController : ControllerBase
     {
         private readonly HighscoreDBContext _context;
+        private static readonly HttpClient client = new HttpClient();
 
         public PlayersController(HighscoreDBContext context)
         {
@@ -38,32 +41,52 @@ namespace HighscoreBackend.Controllers
         //{"Initials":"MK", "Score":69}
         [HttpPost]
         [Route("addScore")]
-        public async Task<ActionResult<Highscore>> PostHighscore(Highscore score)
+        public async Task<ActionResult<Highscore>> PostHighscore(HighscoreRecaptcha scoreR)
         {
-            if (score.Initials.Length != 3 || score.Score < 0)
+            var values = new Dictionary<string, string>
             {
-                return BadRequest("Wrong arguments");
-            }
+                { "secret", "6LcNOeQUAAAAAG_tEuADEyMdI0pEdb6KpFdYhz2m" },
+                { "response", scoreR.Token.ToString() }
+            };
+            var content = new FormUrlEncodedContent(values);
+            var response = await client.PostAsync("https://www.google.com/recaptcha/api/siteverify", content);
+            var responseString = await response.Content.ReadAsStringAsync();
 
-            //Add the posted highscore to the Highscore-DbSet
-            _context.Highscore.Add(score);
-            await _context.SaveChangesAsync();
+            var responseDict = JsonConvert.DeserializeObject<Dictionary<string, object>>(responseString);
 
-            List<Highscore> highscores = await _context.Highscore.ToListAsync();
-            if (highscores.Count > 10)
+            if (responseDict["success"].ToString().ToLower().Equals("True".ToLower()))
             {
-                highscores.Sort((h1, h2) => h1.Score.CompareTo(h2.Score));
-                _context.Highscore.Remove(highscores[0]);
+                Highscore score = new Highscore { Initials = scoreR.Initials, Score = scoreR.Score };
+                if (score.Initials.Length != 3 || score.Score < 0)
+                {
+                    return BadRequest("Wrong arguments");
+                }
+
+                //Add the posted highscore to the Highscore-DbSet
+                _context.Highscore.Add(score);
                 await _context.SaveChangesAsync();
 
-                if (highscores[0].HighscoreID == score.HighscoreID)
+                List<Highscore> highscores = await _context.Highscore.ToListAsync();
+                if (highscores.Count > 10)
                 {
-                    return BadRequest("Not enough points");
+                    highscores.Sort((h1, h2) => h1.Score.CompareTo(h2.Score));
+                    _context.Highscore.Remove(highscores[0]);
+                    await _context.SaveChangesAsync();
+
+                    if (highscores[0].HighscoreID == score.HighscoreID)
+                    {
+                        return BadRequest("Not enough points");
+                    }
                 }
+
+                //Return the newly created highscore with the id
+                return Created("PostHighscore", score);
+            }
+            else
+            {
+                return Unauthorized("reCAPTCHA failed" + responseString);
             }
 
-            //Return the newly created highscore with the id
-            return Created("PostHighscore", score);
         }
     }
 }
