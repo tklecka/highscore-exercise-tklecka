@@ -2,6 +2,7 @@ import { Scene, Types, CANVAS, Game, Physics, Input, GameObjects } from 'phaser'
 import { Spaceship, Direction } from './spaceship';
 import { Bullet } from './bullet';
 import { Meteor } from './meteor';
+import { load } from 'recaptcha-v3'
 
 /**
  * Space shooter scene
@@ -154,38 +155,41 @@ class ShooterScene extends Scene {
         this.sentPost = true;
         name = name.substr(0, 3);
 
-        const highscoreEntry = { 'Initials': name, 'Score': points };
-        console.log(JSON.stringify(highscoreEntry));
-
         const headers = new Headers();
 
-        headers.append('Accept', 'application/json'); // This one is enough for GET requests
-        headers.append('Content-Type', 'application/json'); // This one sends body
-
-        fetch('http://localhost:5000/api/addScore', {
-            method: 'POST',
-            mode: 'cors',
-            headers: headers,
-            body: JSON.stringify(highscoreEntry),
-        }).then((postres) => {
-            fetch('http://localhost:5000/api/highscore', {
-                method: 'GET',
-                mode: 'cors',
-                headers: headers
-            }).then((response) => {
-                response.json().then(highscores => {
-                    let highscore = "List: ";
-                    highscore += "<ul>";
-    
-                    for (const curH of highscores) {
-                        highscore += "<li>" + curH.initials + "\t" + curH.score + "</li>";
-                    }
-    
-                    highscore += "</ul>";
-                    document.getElementById("hslist").innerHTML = highscore;
+        headers.append('Accept', 'application/json');
+        headers.append('Content-Type', 'application/json');
+        
+        load('6LcNOeQUAAAAAKzCDLtOJXrr8z_6FB__MkaZnLHq').then((recaptcha) => {
+            recaptcha.execute('homepage').then((token) => {
+                console.log(token);
+                const highscoreEntry = { 'Initials': name, 'Score': points, 'Token': token };
+                fetch('http://localhost:5000/api/addScore', {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: headers,
+                    body: JSON.stringify(highscoreEntry),
+                }).then((postres) => {
+                    fetch('http://localhost:5000/api/highscore', {
+                        method: 'GET',
+                        mode: 'cors',
+                        headers: headers
+                    }).then((response) => {
+                        response.json().then(highscores => {
+                            let highscore = "List: ";
+                            highscore += "<ul>";
+            
+                            for (const curH of highscores) {
+                                highscore += "<li>" + curH.initials + "\t" + curH.score + "</li>";
+                            }
+            
+                            highscore += "</ul>";
+                            document.getElementById("hslist").innerHTML = highscore;
+                        });
+                    });
                 });
-            });
-        });
+              });
+          });
     }
 }
 
