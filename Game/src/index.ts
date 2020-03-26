@@ -163,13 +163,13 @@ class ShooterScene extends Scene {
         load('6LcNOeQUAAAAAKzCDLtOJXrr8z_6FB__MkaZnLHq').then((recaptcha) => {
             recaptcha.execute('homepage').then((token) => {
                 const highscoreEntry = { 'Initials': name, 'Score': points, 'Token': token };
-                fetch('https://highscore-exercise-tklecka.azurewebsites.net:5000/api/addScore', {
+                fetch('https://highscore-exercise-tklecka-api.azurewebsites.net/api/addScore', {
                     method: 'POST',
                     mode: 'cors',
                     headers: headers,
                     body: JSON.stringify(highscoreEntry),
                 }).then((postres) => {
-                    fetch('https://highscore-exercise-tklecka.azurewebsites.net:5000/api/highscore', {
+                    fetch('https://highscore-exercise-tklecka-api.azurewebsites.net/api/highscore', {
                         method: 'GET',
                         mode: 'cors',
                         headers: headers
