@@ -12,4 +12,13 @@ namespace HighscoreBackend.Model
         [Required]
         public int Score { get; set; }
     }
+
+    public class HighscoreRecaptcha
+    {
+        public string Initials { get; set; }
+
+        public int Score { get; set; }
+
+        public string Token { get; set; }
+    }
 }
