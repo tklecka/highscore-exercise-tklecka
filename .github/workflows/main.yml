@@ -43,6 +43,5 @@ jobs:
         creds: ${{ secrets.AZURE }}
     - name: Azure Login and Restart Web App 
       run: |
-        az webapp restart --name highscore-exercise-tklecka --resource-group HTL-Perg-UE --subscription 23958a45-cc54-44bc-9de2-ba55cce27027
-        az webapp restart --name highscore-exercise-tklecka-api --resource-group HTL-Perg-UE --subscription 23958a45-cc54-44bc-9de2-ba55cce27027
-
+        az webapp restart --name highscore-exercise-tklecka
+        az webapp restart --name highscore-exercise-tklecka-api
